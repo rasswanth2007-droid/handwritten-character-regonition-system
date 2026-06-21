@@ -12,23 +12,23 @@ export const AuthProvider = ({ children }) => {
     const userData = localStorage.getItem('user');
     if (token && userData) {
       setUser(JSON.parse(userData));
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     }
     setLoading(false);
   }, []);
 
   const login = async (username, password) => {
     try {
-      const response = await axios.post('/api/auth/login/', { username, password });
+      const response = await api.post('/api/auth/login/', { username, password });
       const { access, refresh } = response.data;
       localStorage.setItem('access_token', access);
       localStorage.setItem('refresh_token', refresh);
       
       // Set authorization header before making profile request
-      axios.defaults.headers.common['Authorization'] = `Bearer ${access}`;
+      api.defaults.headers.common['Authorization'] = `Bearer ${access}`;
       
       // Get user profile
-      const profileResponse = await axios.get('/api/auth/profile/');
+      const profileResponse = await api.get('/api/auth/profile/');
       const userData = profileResponse.data;
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      await axios.post('/api/auth/register/', userData);
+      await api.post('/api/auth/register/', userData);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.response?.data || 'Registration failed' };
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
     setUser(null);
-    delete axios.defaults.headers.common['Authorization'];
+    delete api.defaults.headers.common['Authorization'];
   };
 
   const hasRole = (roles) => {
