@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14-alpine
+    container_name: hdc_postgres
+    environment:
+      POSTGRES_DB: hdc_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - hdc_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: hdc_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - hdc_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hdc_backend
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - ./backend:/app
+      - ./backend/media:/app/media
+      - ./backend/ml:/app/ml
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - db
+      - redis
+    networks:
+      - hdc_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hdc_frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - hdc_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: hdc_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf
+      - ./frontend/build:/usr/share/nginx/html
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - hdc_network
+
+volumes:
+  postgres_data:
+
+networks:
+  hdc_network:
+    driver: bridge

@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+/* ── Base ──────────────────────────────────────────────────────────── */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #0f0f13;
+  color: #e4e4ed;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0f0f13;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a36;
+  border-radius: 3px;
+}
+
+/* ── Component Utilities ───────────────────────────────────────────── */
+
+@layer components {
+  .btn-primary {
+    @apply bg-accent hover:bg-accent-hover text-white font-medium py-2.5 px-5 rounded-xl
+           transition-all duration-200 ease-out active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply bg-surface-card hover:bg-surface-hover text-muted hover:text-white
+           border border-surface-border font-medium py-2.5 px-5 rounded-xl
+           transition-all duration-200 ease-out active:scale-[0.98];
+  }
+
+  .btn-danger {
+    @apply bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300
+           border border-red-500/20 font-medium py-2.5 px-5 rounded-xl
+           transition-all duration-200 ease-out active:scale-[0.98];
+  }
+
+  .card {
+    @apply bg-surface-card border border-surface-border rounded-2xl p-6
+           transition-all duration-200;
+  }
+
+  .card-hover {
+    @apply card hover:border-accent/30 hover:shadow-lg hover:shadow-accent-glow;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2.5 bg-surface border border-surface-border rounded-xl
+           focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent/50
+           text-white placeholder-muted/50 transition-all duration-200;
+  }
+
+  .page-container {
+    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 animate-fade-in;
+  }
+
+  .page-title {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+
+  .page-subtitle {
+    @apply text-muted text-sm mt-1;
+  }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
+  }
+}
+
