@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import { PenLine } from 'lucide-react';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -38,7 +39,7 @@ const Register = () => {
       <div className="w-full max-w-sm animate-slide-up">
         <div className="text-center mb-8">
           <div className="w-12 h-12 bg-accent/10 border border-accent/20 rounded-2xl flex items-center justify-center mx-auto mb-5">
-            <span className="text-accent font-mono font-bold text-lg">H</span>
+            <PenLine className="h-6 w-6 text-accent" />
           </div>
           <h1 className="text-xl font-bold tracking-tight leading-tight px-2">
             Handwritten Digit and Alphabet Recognition System
