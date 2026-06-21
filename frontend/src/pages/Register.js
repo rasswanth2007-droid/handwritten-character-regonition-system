@@ -23,8 +23,7 @@ const Register = () => {
       return;
     }
     setLoading(true);
-    const { password2, ...registerData } = formData;
-    const result = await register(registerData);
+    const result = await register(formData);
     if (result.success) {
       toast.success('Account created! Please sign in.');
       navigate('/login');
