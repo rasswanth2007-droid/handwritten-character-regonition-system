@@ -61,12 +61,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+import dj_database_url
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# If DATABASE_URL is provided by Render, it will override the SQLite setup above.
+if config('DATABASE_URL', default=None):
+    DATABASES['default'] = dj_database_url.parse(
+        config('DATABASE_URL'),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 
 AUTH_USER_MODEL = 'core.User'
 
