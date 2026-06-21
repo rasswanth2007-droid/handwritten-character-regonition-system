@@ -43,7 +43,18 @@ export const AuthProvider = ({ children }) => {
       await api.post('/api/auth/register/', userData);
       return { success: true };
     } catch (error) {
-      return { success: false, error: error.response?.data || 'Registration failed' };
+      let errorMsg = 'Registration failed';
+      if (error.response?.data) {
+        if (typeof error.response.data === 'string') {
+          errorMsg = error.response.data;
+        } else if (typeof error.response.data === 'object') {
+          // Extract the first error message from the object
+          const firstKey = Object.keys(error.response.data)[0];
+          errorMsg = error.response.data[firstKey];
+          if (Array.isArray(errorMsg)) errorMsg = errorMsg[0];
+        }
+      }
+      return { success: false, error: errorMsg };
     }
   };
 
