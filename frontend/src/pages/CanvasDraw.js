@@ -55,7 +55,44 @@ const CanvasDrawPage = () => {
     tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
     tempCtx.drawImage(canvas, 0, 0);
 
-    const dataUrl = tempCanvas.toDataURL('image/png');
+    // Auto-crop whitespace to dramatically improve AI accuracy
+    const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+    const data = imageData.data;
+    let minX = tempCanvas.width, minY = tempCanvas.height, maxX = 0, maxY = 0;
+    
+    for (let y = 0; y < tempCanvas.height; y++) {
+      for (let x = 0; x < tempCanvas.width; x++) {
+        // Look for non-white pixels (black ink)
+        const offset = (y * tempCanvas.width + x) * 4;
+        if (data[offset] < 200) { 
+          if (x < minX) minX = x;
+          if (y < minY) minY = y;
+          if (x > maxX) maxX = x;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+
+    // Add 20px padding around the drawing
+    const padding = 20;
+    minX = Math.max(0, minX - padding);
+    minY = Math.max(0, minY - padding);
+    maxX = Math.min(tempCanvas.width, maxX + padding);
+    maxY = Math.min(tempCanvas.height, maxY + padding);
+
+    const croppedWidth = Math.max(10, maxX - minX);
+    const croppedHeight = Math.max(10, maxY - minY);
+
+    const croppedCanvas = document.createElement('canvas');
+    croppedCanvas.width = croppedWidth;
+    croppedCanvas.height = croppedHeight;
+    const croppedCtx = croppedCanvas.getContext('2d');
+    
+    croppedCtx.fillStyle = '#FFFFFF';
+    croppedCtx.fillRect(0, 0, croppedWidth, croppedHeight);
+    croppedCtx.drawImage(tempCanvas, minX, minY, croppedWidth, croppedHeight, 0, 0, croppedWidth, croppedHeight);
+
+    const dataUrl = croppedCanvas.toDataURL('image/png');
     setLoading(true);
 
     try {
@@ -109,8 +146,8 @@ const CanvasDrawPage = () => {
                   className: 'signature-canvas block w-full h-full touch-none' 
                 }}
                 penColor="#000000"
-                minWidth={4}
-                maxWidth={8}
+                minWidth={2}
+                maxWidth={4}
                 velocityFilterWeight={0.7}
               />
             )}
