@@ -109,8 +109,8 @@ const CanvasDrawPage = () => {
                   className: 'signature-canvas block w-full h-full touch-none' 
                 }}
                 penColor="#000000"
-                minWidth={1.5}
-                maxWidth={3}
+                minWidth={4}
+                maxWidth={8}
                 velocityFilterWeight={0.7}
               />
             )}
