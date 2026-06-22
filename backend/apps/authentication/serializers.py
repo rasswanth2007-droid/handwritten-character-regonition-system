@@ -37,6 +37,8 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password2')
         user = User.objects.create_user(**validated_data)
+        user.is_active = False  # Pending OTP verification
+        user.save()
         return user
 
 

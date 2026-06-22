@@ -12,7 +12,10 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { register } = useAuth();
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [registeredEmail, setRegisteredEmail] = useState('');
+  const { register, verifyOTP } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -27,11 +30,30 @@ const Register = () => {
     }
     setLoading(true);
     const result = await register(formData);
-    if (result.success) {
+    if (result.success && result.require_otp) {
+      toast.success('Check your email for the verification code!');
+      setRegisteredEmail(result.email || formData.email);
+      setShowOtpModal(true);
+    } else if (result.success) {
+      // Fallback if OTP is disabled for some reason
       toast.success('Account created! Please sign in.');
       navigate('/login');
     } else {
       toast.error(result.error || 'Registration failed');
+    }
+    setLoading(false);
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const result = await verifyOTP(registeredEmail, otp);
+    if (result.success) {
+      toast.success(result.message);
+      setShowOtpModal(false);
+      navigate('/login');
+    } else {
+      toast.error(result.error || 'Invalid OTP');
     }
     setLoading(false);
   };
@@ -122,6 +144,38 @@ const Register = () => {
           </div>
         </div>
       </div>
+
+      {/* OTP Modal Overlay */}
+      {showOtpModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-surface-card border border-surface-border rounded-2xl w-full max-w-sm p-6 shadow-2xl animate-scale-in">
+            <h2 className="text-xl font-bold text-white mb-2 text-center">Verify Email</h2>
+            <p className="text-sm text-muted text-center mb-6">
+              We sent a 6-digit code to <span className="text-white font-medium">{registeredEmail}</span>
+            </p>
+            <form onSubmit={handleVerifyOtp} className="space-y-4">
+              <div>
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  className="input-field text-center text-2xl tracking-[0.5em] font-mono"
+                  placeholder="------"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading || otp.length < 6}
+                className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Verifying...' : 'Verify & Login'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
