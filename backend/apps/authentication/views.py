@@ -63,19 +63,21 @@ class RegisterView(generics.CreateAPIView):
         otp = str(random.randint(100000, 999999))
         cache.set(f"otp_{user.email}", otp, timeout=600)  # Valid for 10 minutes
         
-        # Send Email
-        try:
-            send_mail(
-                subject='Verify your HDC Account',
-                message=f'Your verification code is: {otp}\n\nThis code will expire in 10 minutes.',
-                from_email=None,  # Uses DEFAULT_FROM_EMAIL
-                recipient_list=[user.email],
-                fail_silently=False,
-            )
-        except Exception as e:
-            # If email fails, we still created the user, but they can't verify.
-            # In a production app, you might want to handle this more gracefully.
-            pass
+        # Send Email in background to prevent hanging the server!
+        import threading
+        def send_otp_email(email, code):
+            try:
+                send_mail(
+                    subject='Verify your HDC Account',
+                    message=f'Your verification code is: {code}\n\nThis code will expire in 10 minutes.',
+                    from_email=None,
+                    recipient_list=[email],
+                    fail_silently=False,
+                )
+            except Exception as e:
+                print(f"Email failed to send: {e}")
+                
+        threading.Thread(target=send_otp_email, args=(user.email, otp)).start()
 
         return Response({
             'user': UserSerializer(user).data,
