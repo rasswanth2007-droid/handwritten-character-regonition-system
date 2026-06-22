@@ -94,7 +94,7 @@ const History = () => {
               {/* Image Section */}
               <div className="aspect-square bg-white rounded-xl mb-4 overflow-hidden flex items-center justify-center p-4 border border-surface-border">
                 <img 
-                  src={item.image} 
+                  src={item.image.startsWith('/') ? `${process.env.REACT_APP_API_URL || 'https://handwritten-character-regonition-system.onrender.com'}${item.image}` : item.image} 
                   alt="Prediction input" 
                   className="max-w-full max-h-full object-contain filter invert opacity-90 group-hover:scale-105 transition-transform duration-500" 
                 />
