@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { PenTool, Upload, LogOut, PenLine, Settings as SettingsIcon } from 'lucide-react';
+import { PenTool, Upload, LogOut, PenLine, Settings as SettingsIcon, Clock } from 'lucide-react';
 
 const Navbar = () => {
   const { logout } = useAuth();
@@ -53,6 +53,18 @@ const Navbar = () => {
                 <Upload className="h-3.5 w-3.5" />
                 <span>Upload</span>
               </Link>
+
+              <Link
+                to="/history"
+                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 ${
+                  isActive('/history') 
+                    ? 'bg-accent/10 text-accent border border-accent/20' 
+                    : 'text-muted hover:text-white hover:bg-surface-hover'
+                }`}
+              >
+                <Clock className="h-3.5 w-3.5" />
+                <span>History</span>
+              </Link>
               
               <Link
                 to="/settings"
@@ -103,6 +115,17 @@ const Navbar = () => {
             <Upload className="h-5 w-5" />
           </div>
           <span className="text-[10px] font-medium">Upload</span>
+        </Link>
+        <Link
+          to="/history"
+          className={`flex flex-col items-center space-y-1 transition-colors ${
+            isActive('/history') ? 'text-accent' : 'text-muted hover:text-white'
+          }`}
+        >
+          <div className={`p-1.5 rounded-xl transition-colors ${isActive('/history') ? 'bg-accent/10' : ''}`}>
+            <Clock className="h-5 w-5" />
+          </div>
+          <span className="text-[10px] font-medium">History</span>
         </Link>
         <Link
           to="/settings"

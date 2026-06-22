@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import CanvasDraw from './pages/CanvasDraw';
 import ImageUpload from './pages/ImageUpload';
+import History from './pages/History';
 import Settings from './pages/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
@@ -42,6 +43,14 @@ function App() {
               <ProtectedRoute>
                 <Navbar />
                 <ImageUpload />
+              </ProtectedRoute>
+            } />
+            <Route path="/history" element={
+              <ProtectedRoute>
+                <Navbar />
+                <div className="pt-8 px-4">
+                  <History />
+                </div>
               </ProtectedRoute>
             } />
             <Route path="/settings" element={

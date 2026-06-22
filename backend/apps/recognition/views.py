@@ -97,6 +97,33 @@ class PredictionDetailView(generics.RetrieveAPIView):
         return Prediction.objects.filter(user=user)
 
 
+class PredictionFeedbackView(generics.UpdateAPIView):
+    serializer_class = PredictionSerializer
+    permission_classes = (IsAuthenticated,)
+    lookup_field = 'id'
+    
+    def get_queryset(self):
+        return Prediction.objects.filter(user=self.request.user)
+        
+    def update(self, request, *args, **kwargs):
+        prediction = self.get_object()
+        is_correct = request.data.get('is_correct')
+        actual_character = request.data.get('actual_character')
+        
+        if is_correct is not None:
+            prediction.is_correct = is_correct
+            if str(is_correct).lower() == 'false' and actual_character:
+                # Save original guess in top_predictions
+                if 'original_guess' not in prediction.top_predictions:
+                    prediction.top_predictions['original_guess'] = prediction.predicted_character
+                prediction.predicted_character = actual_character
+                prediction.confidence_score = 1.0  # User verified
+            
+            prediction.save()
+            
+        return Response(self.get_serializer(prediction).data)
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def batch_predict(request):
