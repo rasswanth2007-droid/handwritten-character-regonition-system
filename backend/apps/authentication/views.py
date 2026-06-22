@@ -4,9 +4,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.core.mail import send_mail
 from django.core.cache import cache
 import random
+import requests
 from .serializers import (
     CustomTokenObtainPairSerializer,
     UserSerializer,
@@ -16,10 +18,31 @@ from .serializers import (
 
 User = get_user_model()
 
+def verify_recaptcha(token):
+    if not settings.RECAPTCHA_SECRET_KEY:
+        return True # Skip if not configured
+    if not token:
+        return False
+    data = {
+        'secret': settings.RECAPTCHA_SECRET_KEY,
+        'response': token
+    }
+    r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+    result = r.json()
+    # Require success and a decent score for v3
+    if result.get('success') and result.get('score', 0) >= 0.5:
+        return True
+    return False
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
     permission_classes = (AllowAny,)
+    
+    def post(self, request, *args, **kwargs):
+        recaptcha_token = request.data.get('recaptcha_token')
+        if not verify_recaptcha(recaptcha_token):
+            return Response({'detail': 'Bot detected. reCAPTCHA verification failed.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().post(request, *args, **kwargs)
 
 
 class RegisterView(generics.CreateAPIView):
@@ -28,6 +51,10 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     
     def create(self, request, *args, **kwargs):
+        recaptcha_token = request.data.get('recaptcha_token')
+        if not verify_recaptcha(recaptcha_token):
+            return Response({'error': 'Bot detected. reCAPTCHA verification failed.'}, status=status.HTTP_403_FORBIDDEN)
+            
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()

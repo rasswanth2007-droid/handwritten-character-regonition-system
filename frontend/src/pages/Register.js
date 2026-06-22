@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import toast from 'react-hot-toast';
 import { PenLine, Eye, EyeOff } from 'lucide-react';
 
@@ -17,6 +18,7 @@ const Register = () => {
   const [registeredEmail, setRegisteredEmail] = useState('');
   const { register, verifyOTP } = useAuth();
   const navigate = useNavigate();
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,12 +26,17 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!executeRecaptcha) {
+      toast.error('reCAPTCHA not loaded yet');
+      return;
+    }
     if (formData.password !== formData.password2) {
       toast.error('Passwords do not match');
       return;
     }
     setLoading(true);
-    const result = await register(formData);
+    const recaptchaToken = await executeRecaptcha('register');
+    const result = await register({ ...formData, recaptcha_token: recaptchaToken });
     if (result.success && result.require_otp) {
       toast.success('Check your email for the verification code!');
       setRegisteredEmail(result.email || formData.email);

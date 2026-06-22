@@ -17,9 +17,9 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (username, password) => {
+  const login = async (username, password, recaptchaToken) => {
     try {
-      const response = await api.post('/api/auth/login/', { username, password });
+      const response = await api.post('/api/auth/login/', { username, password, recaptcha_token: recaptchaToken });
       const { access, refresh } = response.data;
       localStorage.setItem('access_token', access);
       localStorage.setItem('refresh_token', refresh);

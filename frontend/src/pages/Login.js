@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import toast from 'react-hot-toast';
 import { PenLine, Eye, EyeOff } from 'lucide-react';
 
@@ -10,6 +11,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -17,8 +19,13 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!executeRecaptcha) {
+      toast.error('reCAPTCHA not loaded yet');
+      return;
+    }
     setLoading(true);
-    const result = await login(formData.username, formData.password);
+    const recaptchaToken = await executeRecaptcha('login');
+    const result = await login(formData.username, formData.password, recaptchaToken);
     if (result.success) {
       toast.success('Welcome back!');
       navigate('/');

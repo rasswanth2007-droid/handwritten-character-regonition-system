@@ -9,11 +9,13 @@ import ImageUpload from './pages/ImageUpload';
 import Settings from './pages/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
+import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <GoogleReCaptchaProvider reCaptchaKey={process.env.REACT_APP_RECAPTCHA_SITE_KEY || "dummy_key_to_prevent_crash_during_dev"}>
+      <AuthProvider>
+        <Router>
         <div className="min-h-screen bg-surface pb-20 sm:pb-0">
           <Toaster
             position="top-center"
@@ -55,6 +57,7 @@ function App() {
         </div>
       </Router>
     </AuthProvider>
+    </GoogleReCaptchaProvider>
   );
 }
 
