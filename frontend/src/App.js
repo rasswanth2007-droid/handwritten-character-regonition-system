@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import CanvasDraw from './pages/CanvasDraw';
 import ImageUpload from './pages/ImageUpload';
+import Settings from './pages/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 
@@ -39,6 +40,14 @@ function App() {
               <ProtectedRoute>
                 <Navbar />
                 <ImageUpload />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <Navbar />
+                <div className="pt-8 px-4">
+                  <Settings />
+                </div>
               </ProtectedRoute>
             } />
             <Route path="*" element={<Navigate to="/" replace />} />

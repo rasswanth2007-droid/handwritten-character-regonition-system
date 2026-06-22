@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { PenTool, Upload, LogOut, PenLine } from 'lucide-react';
+import { PenTool, Upload, LogOut, PenLine, Settings as SettingsIcon } from 'lucide-react';
 
 const Navbar = () => {
   const { logout } = useAuth();
@@ -53,6 +53,18 @@ const Navbar = () => {
                 <Upload className="h-3.5 w-3.5" />
                 <span>Upload</span>
               </Link>
+              
+              <Link
+                to="/settings"
+                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 ${
+                  isActive('/settings') 
+                    ? 'bg-accent/10 text-accent border border-accent/20' 
+                    : 'text-muted hover:text-white hover:bg-surface-hover'
+                }`}
+              >
+                <SettingsIcon className="h-3.5 w-3.5" />
+                <span>Settings</span>
+              </Link>
             </div>
 
             {/* Logout (Desktop & Mobile) */}
@@ -91,6 +103,17 @@ const Navbar = () => {
             <Upload className="h-5 w-5" />
           </div>
           <span className="text-[10px] font-medium">Upload</span>
+        </Link>
+        <Link
+          to="/settings"
+          className={`flex flex-col items-center space-y-1 transition-colors ${
+            isActive('/settings') ? 'text-accent' : 'text-muted hover:text-white'
+          }`}
+        >
+          <div className={`p-1.5 rounded-xl transition-colors ${isActive('/settings') ? 'bg-accent/10' : ''}`}>
+            <SettingsIcon className="h-5 w-5" />
+          </div>
+          <span className="text-[10px] font-medium">Settings</span>
         </Link>
       </nav>
     </>
