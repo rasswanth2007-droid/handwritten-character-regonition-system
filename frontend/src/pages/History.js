@@ -6,23 +6,39 @@ import api from '../services/api';
 const History = () => {
   const [predictions, setPredictions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [nextPageUrl, setNextPageUrl] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [correction, setCorrection] = useState('');
 
   useEffect(() => {
-    fetchHistory();
+    fetchHistory('/api/recognition/predictions/');
   }, []);
 
-  const fetchHistory = async () => {
+  const fetchHistory = async (url, isLoadMore = false) => {
+    if (isLoadMore) setLoadingMore(true);
+    else setLoading(true);
+
     try {
-      const response = await api.get('/api/recognition/predictions/');
-      // Django returns paginated results { count, next, previous, results: [...] }
-      const data = response.data.results || response.data;
-      setPredictions(data);
+      // If url is absolute (from DRF), extract the path
+      const path = url.startsWith('http') ? new URL(url).pathname + new URL(url).search : url;
+      const response = await api.get(path);
+      
+      const newData = response.data.results || response.data;
+      
+      if (isLoadMore) {
+        setPredictions(prev => [...prev, ...newData]);
+      } else {
+        setPredictions(newData);
+      }
+      
+      // Save the next page URL provided by Django Rest Framework
+      setNextPageUrl(response.data.next || null);
     } catch (error) {
       toast.error('Failed to load history');
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
@@ -179,6 +195,24 @@ const History = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Pagination / Load More */}
+      {nextPageUrl && (
+        <div className="flex justify-center pt-8">
+          <button 
+            onClick={() => fetchHistory(nextPageUrl, true)}
+            disabled={loadingMore}
+            className="btn-primary bg-surface border border-surface-border hover:bg-surface-hover text-white px-8 py-2.5 rounded-full shadow-lg flex items-center gap-2 disabled:opacity-50"
+          >
+            {loadingMore ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+            ) : (
+              <Clock className="h-4 w-4" />
+            )}
+            {loadingMore ? 'Loading...' : 'Load Older History'}
+          </button>
         </div>
       )}
     </div>
