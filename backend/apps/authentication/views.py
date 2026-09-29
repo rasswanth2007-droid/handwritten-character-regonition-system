@@ -58,57 +58,15 @@ class RegisterView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        
-        # Generate 6-digit OTP
-        otp = str(random.randint(100000, 999999))
-        cache.set(f"otp_{user.email}", otp, timeout=600)  # Valid for 10 minutes
-        
-        # Send Email in background to prevent hanging the server!
-        import threading
-        def send_otp_email(email, code):
-            try:
-                send_mail(
-                    subject='Verify your HDC Account',
-                    message=f'Your verification code is: {code}\n\nThis code will expire in 10 minutes.',
-                    from_email=None,
-                    recipient_list=[email],
-                    fail_silently=False,
-                )
-            except Exception as e:
-                print(f"Email failed to send: {e}")
-                
-        threading.Thread(target=send_otp_email, args=(user.email, otp)).start()
 
         return Response({
             'user': UserSerializer(user).data,
-            'message': 'User registered successfully. Please verify your email.',
-            'require_otp': True,
+            'message': 'User registered successfully. You can now log in.',
+            'require_otp': False,
             'email': user.email
         }, status=status.HTTP_201_CREATED)
 
-class VerifyOTPView(generics.GenericAPIView):
-    permission_classes = (AllowAny,)
-    
-    def post(self, request, *args, **kwargs):
-        email = request.data.get('email')
-        otp = request.data.get('otp')
-        
-        if not email or not otp:
-            return Response({'error': 'Email and OTP are required'}, status=status.HTTP_400_BAD_REQUEST)
-            
-        cached_otp = cache.get(f"otp_{email}")
-        
-        if not cached_otp or cached_otp != str(otp):
-            return Response({'error': 'Invalid or expired OTP'}, status=status.HTTP_400_BAD_REQUEST)
-            
-        try:
-            user = User.objects.get(email=email)
-            user.is_active = True
-            user.save()
-            cache.delete(f"otp_{email}")
-            return Response({'message': 'Email verified successfully! You can now log in.'}, status=status.HTTP_200_OK)
-        except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
 
 
 class ProfileView(generics.RetrieveUpdateDestroyAPIView):

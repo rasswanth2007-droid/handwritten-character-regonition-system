@@ -40,8 +40,8 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const res = await api.post('/api/auth/register/', userData);
-      return { success: true, require_otp: res.data.require_otp, email: res.data.email };
+      await api.post('/api/auth/register/', userData);
+      return { success: true };
     } catch (error) {
       let errorMsg = 'Registration failed';
       if (error.response?.data) {
@@ -58,14 +58,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const verifyOTP = async (email, otp) => {
-    try {
-      const res = await api.post('/api/auth/verify-otp/', { email, otp });
-      return { success: true, message: res.data.message };
-    } catch (error) {
-      return { success: false, error: error.response?.data?.error || 'Verification failed' };
-    }
-  };
+
 
   const logout = () => {
     localStorage.removeItem('access_token');
@@ -84,7 +77,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, verifyOTP, logout, loading, hasRole }}>
+    <AuthContext.Provider value={{ user, login, register, logout, loading, hasRole }}>
       {children}
     </AuthContext.Provider>
   );
