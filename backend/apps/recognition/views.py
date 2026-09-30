@@ -5,19 +5,9 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.conf import settings
 from .serializers import PredictionSerializer, PredictionCreateSerializer
-from .services import ImagePreprocessor, CharacterRecognizer, GeminiVisionEngine
+from .services import ImagePreprocessor, CharacterRecognizer
 from apps.core.models import Prediction, MLModel
 import os
-
-
-# Singleton Gemini engine — initialized once when Django starts
-_gemini_engine = None
-
-def get_gemini_engine():
-    global _gemini_engine
-    if _gemini_engine is None:
-        _gemini_engine = GeminiVisionEngine()
-    return _gemini_engine
 
 
 class PredictionView(generics.CreateAPIView):
@@ -45,10 +35,6 @@ class PredictionView(generics.CreateAPIView):
         
         recognizer = CharacterRecognizer(model_path=checkpoint_path)
         prediction_result = recognizer.predict(binary_image)
-        
-        # ── Engine 2: Gemini Vision (confidence-gated) ─────────────────
-        engine = get_gemini_engine()
-        prediction_result = engine.ensemble(prediction_result, pil_image)
         
         # Save prediction to database
         prediction = Prediction.objects.create(
@@ -136,16 +122,11 @@ def batch_predict(request):
     
     preprocessor = ImagePreprocessor()
     recognizer = CharacterRecognizer()
-    engine = get_gemini_engine()
     
     for image_file in images:
         try:
-            # Engine 1: PyTorch
             binary_image, pil_image = preprocessor.preprocess_image(image_file)
             prediction_result = recognizer.predict(binary_image)
-            
-            # Engine 2: Gemini (confidence-gated)
-            prediction_result = engine.ensemble(prediction_result, pil_image)
             
             # Save prediction
             prediction = Prediction.objects.create(

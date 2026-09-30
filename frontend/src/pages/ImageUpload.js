@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { recognitionAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import { Upload, X, Send } from 'lucide-react';
-import EnsembleBadge from '../components/EnsembleBadge';
 
 const ImageUpload = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -126,11 +125,10 @@ const ImageUpload = () => {
                 <p className="text-xs text-muted mt-2">
                   Confidence: {(result.confidence_score * 100).toFixed(1)}%
                 </p>
-                <EnsembleBadge result={result} />
               </div>
 
-              {/* Per-character breakdown — only when PyTorch is final */}
-              {result.correction_source !== 'gemini' && result.lines && result.lines.length > 0 && (
+              {/* Per-character breakdown */}
+              {result.lines && result.lines.length > 0 && (
                 <div>
                   <h3 className="text-xs font-medium text-muted mb-2">Per-Character</h3>
                   {result.lines.map((line, lineIdx) => (

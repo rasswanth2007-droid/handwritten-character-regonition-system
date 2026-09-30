@@ -3,7 +3,6 @@ import SignatureCanvas from 'react-signature-canvas';
 import { recognitionAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import { Eraser, Send } from 'lucide-react';
-import EnsembleBadge from '../components/EnsembleBadge';
 
 const CanvasDrawPage = () => {
   const canvasRef = useRef(null);
@@ -190,11 +189,10 @@ const CanvasDrawPage = () => {
                 <p className="text-xs text-muted mt-2">
                   Confidence: {(result.confidence_score * 100).toFixed(1)}%
                 </p>
-                <EnsembleBadge result={result} />
               </div>
 
-              {/* Per-character breakdown — only when PyTorch is final */}
-              {result.correction_source !== 'gemini' && result.lines && result.lines.length > 0 && (
+              {/* Per-character breakdown */}
+              {result.lines && result.lines.length > 0 && (
                 <div>
                   <h3 className="text-xs font-medium text-muted mb-2">Per-Character</h3>
                   {result.lines.map((line, lineIdx) => (
