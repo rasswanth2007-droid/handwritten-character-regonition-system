@@ -2,55 +2,35 @@
 
 A production-ready web application that recognizes handwritten digits (0–9) and alphabets (A–Z) using Convolutional Neural Networks (CNN), with **multi-character segmentation** for recognizing whole words and lines.
 
+## Core AI Technologies & Architecture
+
+This project is powered by a robust blend of Computer Vision and Deep Learning technologies, specifically engineered to handle the unpredictability of real-world handwriting.
+
+### 1. The Dataset: EMNIST ByMerge
+- **Massive Scale:** Trained on the **EMNIST ByMerge** dataset, consisting of **814,255** handwritten character images (6x larger than EMNIST Balanced).
+- **Imbalanced Learning:** Utilizes a `WeightedRandomSampler` to train effectively on natural, real-world class distributions rather than artificially balanced data.
+- **47 Class Coverage:** Recognizes all digits (0-9), uppercase letters (A-Z), and distinct lowercase letters (a, b, d, e, f, g, h, n, q, r, t). Similar shapes (like 'C' and 'c') are merged to prevent model confusion.
+
+### 2. Network Architecture: Residual CNN with Attention
+- **Residual Connections:** Employs a custom ResNet-style architecture. Skip connections prevent the vanishing gradient problem, allowing the network to be deeper and learn more complex stroke representations.
+- **Squeeze-and-Excitation (SE) Blocks:** Integrates a channel-based **Attention Mechanism**. SE blocks allow the network to "focus" on the most important parts of a character (like the crossing of a 't') and actively suppress background noise.
+- **High Capacity:** The model boasts ~1.2 million parameters, providing the necessary capacity to differentiate between visually similar characters.
+
+### 3. Advanced Training & Augmentation
+- **Mixup & Cutout:** Uses advanced data augmentations. **Cutout** forces the model to recognize characters even when parts of the strokes are missing. **Mixup** blends images together, teaching the model to handle heavily distorted or messy handwriting.
+- **OneCycleLR & Label Smoothing:** Uses the OneCycle Learning Rate policy for rapid convergence and escaping local minima, combined with Label Smoothing (0.1) to prevent overconfidence and drastically improve generalization on unseen test data.
+
+### 4. Computer Vision Pipeline (OpenCV)
+- **Adaptive Binarization:** Uses Otsu's thresholding to dynamically separate ink from background, regardless of lighting conditions.
+- **Contour Segmentation & Heuristics:** Detects disconnected strokes (like the dot on an 'i') and intelligently merges them based on spatial proximity.
+- **Reading Order Detection:** Automatically clusters characters into lines and sorts them left-to-right, seamlessly preserving the user's natural reading order.
+
 ## Features
 
-- **Character Recognition**: Recognizes digits (0-9), uppercase letters (A-Z), and 11 distinguishable lowercase letters with high accuracy (~88-90% on EMNIST Balanced)
-- **Multi-Character Recognition**: Automatically segments and reads multiple characters from a single image, preserving reading order
-- **Multiple Input Methods**: Drawing canvas, image upload, and webcam capture
-- **Real-time Predictions**: Instant character recognition with per-character confidence scores
-- **Model Training**: Train and manage custom models using EMNIST Balanced dataset
-- **Analytics Dashboard**: Comprehensive visualization of prediction statistics and model performance
-- **Role-Based Access Control**: Admin, Researcher, and User roles with appropriate permissions
-- **Prediction History**: Track and view all predictions with detailed metadata
-
-## Technology Stack
-
-### Frontend
-- React.js 18
-- TailwindCSS
-- Plotly.js for visualizations
-- Axios for API calls
-
-### Backend
-- Django 4.2
-- Django REST Framework
-- SQLite / PostgreSQL
-- JWT Authentication
-
-### Deep Learning
-- **PyTorch** (CNN trained on EMNIST Balanced — 47 classes)
-- OpenCV for image segmentation and preprocessing
-
-### Deployment
-- Docker
-- Docker Compose
-- Nginx
-
-## How It Works
-
-### Recognition Pipeline
-1. **Binarization**: Input image is converted to binary using Otsu thresholding
-2. **Segmentation**: Connected components are found and merged (e.g., dot of 'i' with stem)
-3. **Line Detection**: Characters are clustered into text lines and sorted left-to-right
-4. **Normalization**: Each character is cropped, padded to square, and resized to 28×28
-5. **Classification**: All characters are batched through the CNN for efficient inference
-6. **Mapping**: Predictions are mapped back to characters via the EMNIST Balanced mapping
-
-### Character Coverage (47 classes)
-- All 10 digits: `0-9`
-- All 26 uppercase letters: `A-Z`
-- 11 lowercase letters with distinct shapes: `a, b, d, e, f, g, h, n, q, r, t`
-- 15 lowercase letters folded into uppercase (inherent to EMNIST Balanced): `c,i,j,k,l,m,o,p,s,u,v,w,x,y,z`
+- **High-Accuracy Recognition**: Achieves ~90.28% validation accuracy on the challenging EMNIST ByMerge dataset.
+- **Multi-Character Support**: Draw or upload entire words/sentences.
+- **Real-time Confidence Scoring**: Instantly returns predictions with per-character confidence metrics.
+- **Analytics & History**: Track all predictions over time with a comprehensive dashboard.
 
 ## Quick Start
 
