@@ -3,9 +3,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import toast from 'react-hot-toast';
-import { PenLine, Eye, EyeOff } from 'lucide-react';
+import { PenLine, Eye, EyeOff, Shield, User } from 'lucide-react';
 
 const Login = () => {
+  const [loginMode, setLoginMode] = useState('user'); // 'user' or 'admin'
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -25,6 +26,7 @@ const Login = () => {
     }
     setLoading(true);
     const recaptchaToken = await executeRecaptcha('login');
+    // For both modes, the backend's EmailBackend accepts email or username
     const result = await login(formData.username, formData.password, recaptchaToken);
     if (result.success) {
       toast.success('Welcome back!');
@@ -33,6 +35,11 @@ const Login = () => {
       toast.error(result.error);
     }
     setLoading(false);
+  };
+
+  const switchMode = (mode) => {
+    setLoginMode(mode);
+    setFormData({ username: '', password: '' });
   };
 
   return (
@@ -49,18 +56,55 @@ const Login = () => {
           <p className="text-muted text-sm mt-3">Sign in to your account</p>
         </div>
 
+        {/* Login Mode Toggle */}
+        <div className="flex gap-2 mb-4">
+          <button
+            type="button"
+            onClick={() => switchMode('user')}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+              loginMode === 'user'
+                ? 'bg-accent/15 text-accent border border-accent/30'
+                : 'bg-surface-card text-muted border border-surface-border hover:text-white hover:bg-surface-hover'
+            }`}
+          >
+            <User className="h-4 w-4" />
+            User Login
+          </button>
+          <button
+            type="button"
+            onClick={() => switchMode('admin')}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+              loginMode === 'admin'
+                ? 'bg-red-500/15 text-red-400 border border-red-500/30'
+                : 'bg-surface-card text-muted border border-surface-border hover:text-white hover:bg-surface-hover'
+            }`}
+          >
+            <Shield className="h-4 w-4" />
+            Admin Login
+          </button>
+        </div>
+
         {/* Form */}
         <div className="card">
+          {loginMode === 'admin' && (
+            <div className="flex items-center gap-2 mb-4 p-3 rounded-xl bg-red-500/5 border border-red-500/15">
+              <Shield className="h-4 w-4 text-red-400 flex-shrink-0" />
+              <p className="text-xs text-red-400/80">Admin access — use your registered admin email</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-muted mb-1.5">Username</label>
+              <label className="block text-xs font-medium text-muted mb-1.5">
+                {loginMode === 'admin' ? 'Email' : 'Username'}
+              </label>
               <input
-                type="text"
+                type={loginMode === 'admin' ? 'email' : 'text'}
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
                 className="input-field"
-                placeholder="Enter your username"
+                placeholder={loginMode === 'admin' ? 'Enter your admin email' : 'Enter your username'}
                 required
               />
             </div>
@@ -94,23 +138,27 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`w-full font-medium py-2.5 px-5 rounded-xl transition-all duration-200 ease-out active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed ${
+                loginMode === 'admin'
+                  ? 'bg-red-500 hover:bg-red-600 text-white'
+                  : 'btn-primary'
+              }`}
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? 'Signing in...' : loginMode === 'admin' ? 'Sign In as Admin' : 'Sign In'}
             </button>
           </form>
 
-          <div className="mt-5 text-center">
-            <p className="text-muted text-sm">
-              Don't have an account?{' '}
-              <Link to="/register" className="text-accent hover:text-accent-hover transition-colors">
-                Register
-              </Link>
-            </p>
-          </div>
+          {loginMode === 'user' && (
+            <div className="mt-5 text-center">
+              <p className="text-muted text-sm">
+                Don't have an account?{' '}
+                <Link to="/register" className="text-accent hover:text-accent-hover transition-colors">
+                  Register
+                </Link>
+              </p>
+            </div>
+          )}
         </div>
-
-
       </div>
     </div>
   );

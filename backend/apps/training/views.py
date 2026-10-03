@@ -23,8 +23,6 @@ class DatasetListView(generics.ListCreateAPIView):
         user = self.request.user
         if user.role == 'admin':
             return Dataset.objects.all()
-        elif user.role == 'researcher':
-            return Dataset.objects.filter(uploaded_by=user)
         return Dataset.objects.none()
     
     def perform_create(self, serializer):
@@ -40,8 +38,6 @@ class DatasetDetailView(generics.RetrieveUpdateDestroyAPIView):
         user = self.request.user
         if user.role == 'admin':
             return Dataset.objects.all()
-        elif user.role == 'researcher':
-            return Dataset.objects.filter(uploaded_by=user)
         return Dataset.objects.none()
 
 
@@ -57,8 +53,6 @@ class MLModelListView(generics.ListCreateAPIView):
         user = self.request.user
         if user.role == 'admin':
             return MLModel.objects.all()
-        elif user.role == 'researcher':
-            return MLModel.objects.filter(trained_by=user)
         return MLModel.objects.filter(is_deployed=True)
     
     def perform_create(self, serializer):
@@ -74,8 +68,6 @@ class MLModelDetailView(generics.RetrieveUpdateDestroyAPIView):
         user = self.request.user
         if user.role == 'admin':
             return MLModel.objects.all()
-        elif user.role == 'researcher':
-            return MLModel.objects.filter(trained_by=user)
         return MLModel.objects.filter(is_deployed=True)
 
 
@@ -83,7 +75,7 @@ class MLModelDetailView(generics.RetrieveUpdateDestroyAPIView):
 @permission_classes([IsAuthenticated])
 def train_model(request):
     """Train a new model"""
-    if request.user.role not in ['admin', 'researcher']:
+    if request.user.role != 'admin':
         return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
     
     model_type = request.data.get('model_type', 'combined')

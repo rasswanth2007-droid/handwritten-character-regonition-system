@@ -53,6 +53,11 @@ export const authAPI = {
   register: (userData) => api.post('/api/auth/register/', userData),
   getProfile: () => api.get('/api/auth/profile/'),
   updateProfile: (data) => api.patch('/api/auth/profile/', data),
+  // Admin user management
+  getUsers: () => api.get('/api/auth/users/'),
+  createUser: (data) => api.post('/api/auth/users/create/', data),
+  updateUser: (userId, data) => api.patch(`/api/auth/users/${userId}/`, data),
+  deleteUser: (userId) => api.delete(`/api/auth/users/${userId}/delete/`),
 };
 
 export const recognitionAPI = {
@@ -64,6 +69,9 @@ export const recognitionAPI = {
   batchPredict: (formData) => api.post('/api/recognition/batch-predict/', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
+  // Admin prediction management
+  getAdminPredictions: (params = '') => api.get(`/api/recognition/admin/predictions/${params}`),
+  deletePrediction: (id) => api.delete(`/api/recognition/admin/predictions/${id}/delete/`),
 };
 
 export const trainingAPI = {
@@ -87,6 +95,7 @@ export const analyticsAPI = {
   getModelComparison: () => api.get('/api/analytics/charts/model-comparison/'),
   getTrainingProgress: (modelId) => api.get(`/api/analytics/training-progress/${modelId}/`),
   getDatasetStats: () => api.get('/api/analytics/dataset-stats/'),
+  getModelAccuracyComparison: () => api.get('/api/analytics/model-accuracy-comparison/'),
 };
 
 export default api;

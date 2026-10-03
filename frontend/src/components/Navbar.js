@@ -1,10 +1,10 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { PenTool, Upload, LogOut, PenLine, Settings as SettingsIcon, Clock } from 'lucide-react';
+import { PenTool, Upload, LogOut, PenLine, Settings as SettingsIcon, Shield } from 'lucide-react';
 
 const Navbar = () => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -14,6 +14,7 @@ const Navbar = () => {
   };
 
   const isActive = (path) => location.pathname === path;
+  const isAdmin = user?.role === 'admin';
 
   return (
     <>
@@ -55,18 +56,6 @@ const Navbar = () => {
               </Link>
 
               <Link
-                to="/history"
-                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 ${
-                  isActive('/history') 
-                    ? 'bg-accent/10 text-accent border border-accent/20' 
-                    : 'text-muted hover:text-white hover:bg-surface-hover'
-                }`}
-              >
-                <Clock className="h-3.5 w-3.5" />
-                <span>History</span>
-              </Link>
-              
-              <Link
                 to="/settings"
                 className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 ${
                   isActive('/settings') 
@@ -77,6 +66,21 @@ const Navbar = () => {
                 <SettingsIcon className="h-3.5 w-3.5" />
                 <span>Settings</span>
               </Link>
+
+              {/* Admin link — only visible to admin role */}
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 ${
+                    isActive('/admin')
+                      ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+                      : 'text-muted hover:text-red-400 hover:bg-red-500/10'
+                  }`}
+                >
+                  <Shield className="h-3.5 w-3.5" />
+                  <span>Admin</span>
+                </Link>
+              )}
             </div>
 
             {/* Logout (Desktop & Mobile) */}
@@ -117,17 +121,6 @@ const Navbar = () => {
           <span className="text-[10px] font-medium">Upload</span>
         </Link>
         <Link
-          to="/history"
-          className={`flex flex-col items-center space-y-1 transition-colors ${
-            isActive('/history') ? 'text-accent' : 'text-muted hover:text-white'
-          }`}
-        >
-          <div className={`p-1.5 rounded-xl transition-colors ${isActive('/history') ? 'bg-accent/10' : ''}`}>
-            <Clock className="h-5 w-5" />
-          </div>
-          <span className="text-[10px] font-medium">History</span>
-        </Link>
-        <Link
           to="/settings"
           className={`flex flex-col items-center space-y-1 transition-colors ${
             isActive('/settings') ? 'text-accent' : 'text-muted hover:text-white'
@@ -138,6 +131,20 @@ const Navbar = () => {
           </div>
           <span className="text-[10px] font-medium">Settings</span>
         </Link>
+        {/* Admin tab — only for admin users on mobile */}
+        {isAdmin && (
+          <Link
+            to="/admin"
+            className={`flex flex-col items-center space-y-1 transition-colors ${
+              isActive('/admin') ? 'text-red-400' : 'text-muted hover:text-white'
+            }`}
+          >
+            <div className={`p-1.5 rounded-xl transition-colors ${isActive('/admin') ? 'bg-red-500/10' : ''}`}>
+              <Shield className="h-5 w-5" />
+            </div>
+            <span className="text-[10px] font-medium">Admin</span>
+          </Link>
+        )}
       </nav>
     </>
   );

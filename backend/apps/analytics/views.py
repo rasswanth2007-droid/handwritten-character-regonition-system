@@ -156,7 +156,7 @@ def confidence_distribution(request):
 @permission_classes([IsAuthenticated])
 def model_comparison(request):
     """Compare multiple models performance"""
-    if request.user.role not in ['admin', 'researcher']:
+    if request.user.role != 'admin':
         return Response({'error': 'Permission denied'}, status=403)
     
     models = MLModel.objects.all().order_by('-created_at')[:10]
@@ -180,7 +180,7 @@ def model_comparison(request):
 @permission_classes([IsAuthenticated])
 def training_progress(request, model_id):
     """Get training progress visualization"""
-    if request.user.role not in ['admin', 'researcher']:
+    if request.user.role != 'admin':
         return Response({'error': 'Permission denied'}, status=403)
     
     try:
@@ -227,7 +227,7 @@ def training_progress(request, model_id):
 @permission_classes([IsAuthenticated])
 def dataset_stats(request):
     """Get dataset statistics"""
-    if request.user.role not in ['admin', 'researcher']:
+    if request.user.role != 'admin':
         return Response({'error': 'Permission denied'}, status=403)
     
     datasets = Dataset.objects.all()
@@ -244,3 +244,50 @@ def dataset_stats(request):
         'total_samples': total_samples,
         'dataset_types': list(dataset_types)
     })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def model_accuracy_comparison(request):
+    """Compare v1 vs v2 model prediction accuracy in real-time.
+
+    Computes accuracy from the Prediction table (using user feedback)
+    grouped by model version, and also returns the stored training metrics.
+    """
+    if request.user.role != 'admin':
+        return Response({'error': 'Permission denied'}, status=403)
+
+    models = MLModel.objects.all().order_by('created_at')
+
+    comparison = []
+    for model in models:
+        # Real-time accuracy from user feedback
+        preds = Prediction.objects.filter(is_correct__isnull=False)
+        total_feedback = preds.count()
+        correct_count = preds.filter(is_correct=True).count()
+        realtime_accuracy = (correct_count / total_feedback * 100) if total_feedback > 0 else None
+
+        comparison.append({
+            'id': str(model.id),
+            'name': model.name,
+            'version': model.version,
+            'model_type': model.model_type,
+            'is_active': model.is_active,
+            'is_deployed': model.is_deployed,
+            # Training metrics
+            'training_accuracy': round(model.accuracy * 100, 2) if model.accuracy else None,
+            'precision': round(model.precision * 100, 2) if model.precision else None,
+            'recall': round(model.recall * 100, 2) if model.recall else None,
+            'f1_score': round(model.f1_score * 100, 2) if model.f1_score else None,
+            'training_loss': model.training_loss,
+            'validation_loss': model.validation_loss,
+            'epochs': model.epochs,
+            'batch_size': model.batch_size,
+            'learning_rate': model.learning_rate,
+            # Real-time accuracy from user feedback
+            'realtime_accuracy': round(realtime_accuracy, 2) if realtime_accuracy else None,
+            'total_feedback_count': total_feedback,
+            'created_at': model.created_at.isoformat(),
+        })
+
+    return Response({'models': comparison})

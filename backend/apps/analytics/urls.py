@@ -6,7 +6,8 @@ from .views import (
     confidence_distribution,
     model_comparison,
     training_progress,
-    dataset_stats
+    dataset_stats,
+    model_accuracy_comparison,
 )
 
 urlpatterns = [
@@ -17,4 +18,5 @@ urlpatterns = [
     path('charts/model-comparison/', model_comparison, name='model_comparison'),
     path('training-progress/<uuid:model_id>/', training_progress, name='training_progress'),
     path('dataset-stats/', dataset_stats, name='dataset_stats'),
+    path('model-accuracy-comparison/', model_accuracy_comparison, name='model_accuracy_comparison'),
 ]

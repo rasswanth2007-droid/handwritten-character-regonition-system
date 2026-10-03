@@ -150,3 +150,46 @@ def batch_predict(request):
             results.append({'error': str(e)})
     
     return Response({'results': results})
+
+
+class AdminPredictionListView(generics.ListAPIView):
+    """Admin-only: list ALL predictions from ALL users with pagination."""
+    serializer_class = PredictionSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        if self.request.user.role != 'admin':
+            return Prediction.objects.none()
+
+        qs = Prediction.objects.select_related('user').all()
+
+        # Optional filters
+        username = self.request.query_params.get('username')
+        if username:
+            qs = qs.filter(user__username__icontains=username)
+
+        character = self.request.query_params.get('character')
+        if character:
+            qs = qs.filter(predicted_character__icontains=character)
+
+        method = self.request.query_params.get('method')
+        if method:
+            qs = qs.filter(input_method=method)
+
+        return qs.order_by('-created_at')
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def admin_delete_prediction(request, prediction_id):
+    """Admin-only: delete a specific prediction record."""
+    if request.user.role != 'admin':
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+
+    try:
+        prediction = Prediction.objects.get(id=prediction_id)
+        prediction.delete()
+        return Response({'message': 'Prediction deleted successfully'})
+    except Prediction.DoesNotExist:
+        return Response({'error': 'Prediction not found'}, status=status.HTTP_404_NOT_FOUND)
+

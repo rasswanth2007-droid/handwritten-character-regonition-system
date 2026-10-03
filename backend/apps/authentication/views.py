@@ -13,7 +13,9 @@ from .serializers import (
     CustomTokenObtainPairSerializer,
     UserSerializer,
     RegisterSerializer,
-    LoginSerializer
+    LoginSerializer,
+    AdminUserCreateSerializer,
+    AdminUserUpdateSerializer,
 )
 
 User = get_user_model()
@@ -83,9 +85,40 @@ def user_list(request):
     if request.user.role != 'admin':
         return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
     
-    users = User.objects.all()
+    users = User.objects.all().order_by('-created_at')
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def admin_create_user(request):
+    """Admin creates a new user directly (no reCAPTCHA needed)."""
+    if request.user.role != 'admin':
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+
+    serializer = AdminUserCreateSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    user = serializer.save()
+    return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['PUT', 'PATCH'])
+@permission_classes([IsAuthenticated])
+def admin_update_user(request, user_id):
+    """Admin updates an existing user's details."""
+    if request.user.role != 'admin':
+        return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = AdminUserUpdateSerializer(user, data=request.data, partial=True)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return Response(UserSerializer(user).data)
 
 
 @api_view(['DELETE'])

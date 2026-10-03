@@ -5,6 +5,8 @@ from .views import (
     RegisterView,
     ProfileView,
     user_list,
+    admin_create_user,
+    admin_update_user,
     delete_user
 )
 
@@ -14,5 +16,7 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('profile/', ProfileView.as_view(), name='profile'),
     path('users/', user_list, name='user_list'),
+    path('users/create/', admin_create_user, name='admin_create_user'),
+    path('users/<uuid:user_id>/', admin_update_user, name='admin_update_user'),
     path('users/<uuid:user_id>/delete/', delete_user, name='delete_user'),
 ]
