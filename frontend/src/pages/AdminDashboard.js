@@ -58,7 +58,7 @@ const AdminDashboard = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [createForm, setCreateForm] = useState({
-    email: '', password: '', first_name: '', last_name: '', role: 'user', phone: ''
+    email: '', password: '', first_name: '', last_name: '', role: 'user'
   });
   const [editForm, setEditForm] = useState({});
 
@@ -126,7 +126,7 @@ const AdminDashboard = () => {
       await authAPI.createUser(createForm);
       toast.success('User created successfully');
       setShowCreateForm(false);
-      setCreateForm({ email: '', password: '', first_name: '', last_name: '', role: 'user', phone: '' });
+      setCreateForm({ email: '', password: '', first_name: '', last_name: '', role: 'user' });
       fetchUsers();
     } catch (err) {
       const msg = err.response?.data;
@@ -148,7 +148,6 @@ const AdminDashboard = () => {
       first_name: user.first_name || '',
       last_name: user.last_name || '',
       role: user.role,
-      phone: user.phone || '',
       is_active: user.is_active !== undefined ? user.is_active : true,
       raw_password: user.raw_password || '',
     });
@@ -304,11 +303,7 @@ const AdminDashboard = () => {
                       <option value="admin">Admin</option>
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-xs font-medium text-muted mb-1.5">Phone</label>
-                    <input type="text" className="input-field" placeholder="+91 1234567890"
-                      value={createForm.phone} onChange={e => setCreateForm({...createForm, phone: e.target.value})} />
-                  </div>
+
                 </div>
                 <button type="submit" className="btn-primary flex items-center gap-2">
                   <Plus className="h-4 w-4" />
@@ -324,7 +319,7 @@ const AdminDashboard = () => {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-surface-border bg-surface/50">
-                    <th className="text-left py-3.5 px-5 text-xs font-semibold text-muted uppercase tracking-wider">User</th>
+                    <th className="text-left py-3.5 px-5 text-xs font-semibold text-muted uppercase tracking-wider">Name</th>
                     <th className="text-left py-3.5 px-5 text-xs font-semibold text-muted uppercase tracking-wider">Email</th>
                     <th className="text-left py-3.5 px-5 text-xs font-semibold text-muted uppercase tracking-wider">Role</th>
                     <th className="text-left py-3.5 px-5 text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
@@ -339,7 +334,12 @@ const AdminDashboard = () => {
                       {editingUser === user.id ? (
                         /* ── Inline Edit Row ─────────── */
                         <>
-
+                          <td className="py-3 px-5">
+                            <input type="text" className="input-field py-1.5 text-sm" value={editForm.first_name} placeholder="First Name"
+                              onChange={e => setEditForm({...editForm, first_name: e.target.value})} />
+                            <input type="text" className="input-field py-1.5 text-sm mt-1" value={editForm.last_name} placeholder="Last Name"
+                              onChange={e => setEditForm({...editForm, last_name: e.target.value})} />
+                          </td>
                           <td className="py-3 px-5">
                             <input type="email" className="input-field py-1.5 text-sm" value={editForm.email}
                               onChange={e => setEditForm({...editForm, email: e.target.value})} />
@@ -384,13 +384,12 @@ const AdminDashboard = () => {
                           <td className="py-3.5 px-5">
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center text-accent text-sm font-bold">
-                                {user.email?.charAt(0).toUpperCase()}
+                                {user.first_name ? user.first_name.charAt(0).toUpperCase() : user.email?.charAt(0).toUpperCase()}
                               </div>
                               <div>
-                                <p className="font-semibold text-sm">{user.email}</p>
-                                {(user.first_name || user.last_name) && (
-                                  <p className="text-xs text-muted">{user.first_name} {user.last_name}</p>
-                                )}
+                                <p className="font-semibold text-sm">
+                                  {user.first_name || user.last_name ? `${user.first_name} ${user.last_name}`.trim() : '—'}
+                                </p>
                               </div>
                             </div>
                           </td>

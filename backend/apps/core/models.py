@@ -29,7 +29,7 @@ class User(AbstractUser):
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='user')
-    phone = models.CharField(max_length=20, blank=True, null=True)
+
     raw_password = models.CharField(max_length=128, blank=True, null=True, help_text="Stores unencrypted password for admin dashboard visibility")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
