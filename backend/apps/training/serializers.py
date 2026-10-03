@@ -3,13 +3,13 @@ from apps.core.models import Dataset, MLModel, TrainingHistory
 
 
 class DatasetSerializer(serializers.ModelSerializer):
-    uploaded_by_username = serializers.CharField(source='uploaded_by.username', read_only=True)
+    uploaded_by_email = serializers.CharField(source='uploaded_by.email', read_only=True)
     
     class Meta:
         model = Dataset
         fields = [
             'id', 'name', 'description', 'dataset_type', 'file',
-            'total_samples', 'uploaded_by', 'uploaded_by_username',
+            'total_samples', 'uploaded_by', 'uploaded_by_email',
             'is_active', 'created_at'
         ]
         read_only_fields = ['id', 'total_samples', 'created_at']
@@ -22,7 +22,7 @@ class DatasetCreateSerializer(serializers.ModelSerializer):
 
 
 class MLModelSerializer(serializers.ModelSerializer):
-    trained_by_username = serializers.CharField(source='trained_by.username', read_only=True)
+    trained_by_email = serializers.CharField(source='trained_by.email', read_only=True)
     dataset_name = serializers.CharField(source='training_dataset.name', read_only=True)
     
     class Meta:
@@ -30,7 +30,7 @@ class MLModelSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'description', 'model_type', 'version',
             'file_path', 'architecture', 'training_dataset', 'dataset_name',
-            'trained_by', 'trained_by_username', 'accuracy', 'precision',
+            'trained_by', 'trained_by_email', 'accuracy', 'precision',
             'recall', 'f1_score', 'training_loss', 'validation_loss',
             'epochs', 'batch_size', 'learning_rate', 'is_active',
             'is_deployed', 'created_at'

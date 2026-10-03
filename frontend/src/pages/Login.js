@@ -7,7 +7,7 @@ import { PenLine, Eye, EyeOff, Shield, User } from 'lucide-react';
 
 const Login = () => {
   const [loginMode, setLoginMode] = useState('user'); // 'user' or 'admin'
-  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -26,8 +26,7 @@ const Login = () => {
     }
     setLoading(true);
     const recaptchaToken = await executeRecaptcha('login');
-    // For both modes, the backend's EmailBackend accepts email or username
-    const result = await login(formData.username, formData.password, recaptchaToken);
+    const result = await login(formData.email, formData.password, recaptchaToken);
     if (result.success) {
       toast.success('Welcome back!');
       navigate('/');
@@ -39,7 +38,7 @@ const Login = () => {
 
   const switchMode = (mode) => {
     setLoginMode(mode);
-    setFormData({ username: '', password: '' });
+    setFormData({ email: '', password: '' });
   };
 
   return (
@@ -96,15 +95,15 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-muted mb-1.5">
-                {loginMode === 'admin' ? 'Email' : 'Username'}
+                Email
               </label>
               <input
-                type={loginMode === 'admin' ? 'email' : 'text'}
-                name="username"
-                value={formData.username}
+                type="email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
                 className="input-field"
-                placeholder={loginMode === 'admin' ? 'Enter your admin email' : 'Enter your username'}
+                placeholder={loginMode === 'admin' ? 'Enter your admin email' : 'Enter your registered email'}
                 required
               />
             </div>

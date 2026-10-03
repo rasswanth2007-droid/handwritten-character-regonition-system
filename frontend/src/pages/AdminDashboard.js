@@ -58,7 +58,7 @@ const AdminDashboard = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [createForm, setCreateForm] = useState({
-    username: '', email: '', password: '', first_name: '', last_name: '', role: 'user', phone: ''
+    email: '', password: '', first_name: '', last_name: '', role: 'user', phone: ''
   });
   const [editForm, setEditForm] = useState({});
 
@@ -126,7 +126,7 @@ const AdminDashboard = () => {
       await authAPI.createUser(createForm);
       toast.success('User created successfully');
       setShowCreateForm(false);
-      setCreateForm({ username: '', email: '', password: '', first_name: '', last_name: '', role: 'user', phone: '' });
+      setCreateForm({ email: '', password: '', first_name: '', last_name: '', role: 'user', phone: '' });
       fetchUsers();
     } catch (err) {
       const msg = err.response?.data;
@@ -143,7 +143,7 @@ const AdminDashboard = () => {
   const handleEditStart = (user) => {
     setEditingUser(user.id);
     setEditForm({
-      username: user.username,
+
       email: user.email,
       first_name: user.first_name || '',
       last_name: user.last_name || '',
@@ -172,8 +172,8 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleDeleteUser = async (userId, username) => {
-    if (!window.confirm(`Delete user "${username}"? This action cannot be undone.`)) return;
+  const handleDeleteUser = async (userId, email) => {
+    if (!window.confirm(`Delete user "${email}"? This action cannot be undone.`)) return;
     try {
       await authAPI.deleteUser(userId);
       toast.success('User deleted');
@@ -196,7 +196,7 @@ const AdminDashboard = () => {
   };
 
   const handleSearchPredictions = () => {
-    const params = predSearch ? `?username=${encodeURIComponent(predSearch)}` : '';
+    const params = predSearch ? `?email=${encodeURIComponent(predSearch)}` : '';
     fetchPredictions(`/api/recognition/admin/predictions/${params}`);
   };
 
@@ -275,11 +275,7 @@ const AdminDashboard = () => {
             {showCreateForm && (
               <form onSubmit={handleCreateUser} className="animate-slide-up">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                  <div>
-                    <label className="block text-xs font-medium text-muted mb-1.5">Username *</label>
-                    <input type="text" required className="input-field" placeholder="johndoe"
-                      value={createForm.username} onChange={e => setCreateForm({...createForm, username: e.target.value})} />
-                  </div>
+
                   <div>
                     <label className="block text-xs font-medium text-muted mb-1.5">Email *</label>
                     <input type="email" required className="input-field" placeholder="john@example.com"
@@ -343,10 +339,7 @@ const AdminDashboard = () => {
                       {editingUser === user.id ? (
                         /* ── Inline Edit Row ─────────── */
                         <>
-                          <td className="py-3 px-5">
-                            <input type="text" className="input-field py-1.5 text-sm" value={editForm.username}
-                              onChange={e => setEditForm({...editForm, username: e.target.value})} />
-                          </td>
+
                           <td className="py-3 px-5">
                             <input type="email" className="input-field py-1.5 text-sm" value={editForm.email}
                               onChange={e => setEditForm({...editForm, email: e.target.value})} />
@@ -391,10 +384,10 @@ const AdminDashboard = () => {
                           <td className="py-3.5 px-5">
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center text-accent text-sm font-bold">
-                                {user.username?.charAt(0).toUpperCase()}
+                                {user.email?.charAt(0).toUpperCase()}
                               </div>
                               <div>
-                                <p className="font-semibold text-sm">{user.username}</p>
+                                <p className="font-semibold text-sm">{user.email}</p>
                                 {(user.first_name || user.last_name) && (
                                   <p className="text-xs text-muted">{user.first_name} {user.last_name}</p>
                                 )}
@@ -430,7 +423,7 @@ const AdminDashboard = () => {
                                 className="p-2 rounded-lg text-muted hover:text-accent hover:bg-accent/10 transition-colors" title="Edit">
                                 <Edit3 className="h-4 w-4" />
                               </button>
-                              <button onClick={() => handleDeleteUser(user.id, user.username)}
+                              <button onClick={() => handleDeleteUser(user.id, user.email)}
                                 className="p-2 rounded-lg text-muted hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Delete">
                                 <Trash2 className="h-4 w-4" />
                               </button>
@@ -466,7 +459,7 @@ const AdminDashboard = () => {
                 <input
                   type="text"
                   className="input-field pl-10"
-                  placeholder="Search by username..."
+                  placeholder="Search by email..."
                   value={predSearch}
                   onChange={e => setPredSearch(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleSearchPredictions()}
@@ -506,9 +499,9 @@ const AdminDashboard = () => {
                       <td className="py-3 px-5">
                         <div className="flex items-center gap-2">
                           <div className="w-7 h-7 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 text-xs font-bold">
-                            {pred.user_username?.charAt(0).toUpperCase() || '?'}
+                            {pred.user_email?.charAt(0).toUpperCase() || '?'}
                           </div>
-                          <span className="text-sm font-medium">{pred.user_username || 'Unknown'}</span>
+                          <span className="text-sm font-medium">{pred.user_email || 'Unknown'}</span>
                         </div>
                       </td>
                       <td className="py-3 px-5">

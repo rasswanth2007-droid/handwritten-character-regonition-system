@@ -7,7 +7,7 @@ import { PenLine, Eye, EyeOff } from 'lucide-react';
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    username: '', email: '', password: '', password2: '',
+    email: '', password: '', password2: '',
     first_name: '', last_name: '', role: 'user',
   });
   const [loading, setLoading] = useState(false);
@@ -71,11 +71,6 @@ const Register = () => {
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-medium text-muted mb-1.5">Username</label>
-              <input type="text" name="username" value={formData.username}
-                onChange={handleChange} className="input-field" required />
-            </div>
 
             <div>
               <label className="block text-xs font-medium text-muted mb-1.5">Email</label>

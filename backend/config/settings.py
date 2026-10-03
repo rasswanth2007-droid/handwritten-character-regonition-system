@@ -80,9 +80,7 @@ if config('DATABASE_URL', default=None):
 
 AUTH_USER_MODEL = 'core.User'
 
-AUTHENTICATION_BACKENDS = [
-    'apps.authentication.backends.EmailBackend',
-]
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},

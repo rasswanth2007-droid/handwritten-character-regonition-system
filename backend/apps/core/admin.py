@@ -4,16 +4,16 @@ from .models import User, Prediction, Dataset, MLModel, TrainingHistory
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ['username', 'email', 'role', 'is_active', 'created_at']
+    list_display = ['email', 'role', 'is_active', 'created_at']
     list_filter = ['role', 'is_active', 'created_at']
-    search_fields = ['username', 'email']
+    search_fields = ['email']
 
 
 @admin.register(Prediction)
 class PredictionAdmin(admin.ModelAdmin):
     list_display = ['user', 'predicted_character', 'confidence_score', 'input_method', 'created_at']
     list_filter = ['predicted_character', 'input_method', 'created_at']
-    search_fields = ['user__username', 'predicted_character']
+    search_fields = ['user__email', 'predicted_character']
 
 
 @admin.register(Dataset)

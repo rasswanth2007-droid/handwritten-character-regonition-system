@@ -11,7 +11,7 @@ const Settings = () => {
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
-    username: '',
+
     email: '',
   });
 
@@ -20,7 +20,7 @@ const Settings = () => {
       setFormData({
         first_name: user.first_name || '',
         last_name: user.last_name || '',
-        username: user.username || '',
+
         email: user.email || '',
       });
     }
@@ -83,10 +83,7 @@ const Settings = () => {
               <input type="text" name="last_name" value={formData.last_name} onChange={handleChange} className="input-field" required />
             </div>
           </div>
-          <div>
-            <label className="block text-xs font-medium text-muted mb-1.5">Username</label>
-            <input type="text" name="username" value={formData.username} onChange={handleChange} className="input-field" required />
-          </div>
+
           <div>
             <label className="block text-xs font-medium text-muted mb-1.5">Email Address</label>
             <input type="email" name="email" value={formData.email} onChange={handleChange} className="input-field" required />

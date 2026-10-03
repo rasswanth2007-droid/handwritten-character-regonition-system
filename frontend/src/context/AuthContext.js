@@ -17,16 +17,16 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (username, password, recaptchaToken) => {
+  const login = async (email, password, recaptchaToken) => {
     try {
-      const response = await api.post('/api/auth/login/', { username, password, recaptcha_token: recaptchaToken });
+      const response = await api.post('/api/auth/login/', { email, password, recaptcha_token: recaptchaToken });
       const { access, refresh } = response.data;
       localStorage.setItem('access_token', access);
       localStorage.setItem('refresh_token', refresh);
-      
+
       // Set authorization header before making profile request
       api.defaults.headers.common['Authorization'] = `Bearer ${access}`;
-      
+
       // Get user profile
       const profileResponse = await api.get('/api/auth/profile/');
       const userData = profileResponse.data;
@@ -40,8 +40,8 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      await api.post('/api/auth/register/', userData);
-      return { success: true };
+      const res = await api.post('/api/auth/register/', userData);
+      return { success: true, require_otp: res.data.require_otp, email: res.data.email };
     } catch (error) {
       let errorMsg = 'Registration failed';
       if (error.response?.data) {
@@ -58,7 +58,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-
+  const verifyOTP = async (email, otp) => {
+    try {
+      const res = await api.post('/api/auth/verify-otp/', { email, otp });
+      return { success: true, message: res.data.message };
+    } catch (error) {
+      return { success: false, error: error.response?.data?.error || 'Verification failed' };
+    }
+  };
 
   const logout = () => {
     localStorage.removeItem('access_token');
@@ -77,7 +84,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading, hasRole }}>
+    <AuthContext.Provider value={{ user, login, register, verifyOTP, logout, loading, hasRole }}>
       {children}
     </AuthContext.Provider>
   );

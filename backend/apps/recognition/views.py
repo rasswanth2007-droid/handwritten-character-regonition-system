@@ -164,9 +164,9 @@ class AdminPredictionListView(generics.ListAPIView):
         qs = Prediction.objects.select_related('user').all()
 
         # Optional filters
-        username = self.request.query_params.get('username')
-        if username:
-            qs = qs.filter(user__username__icontains=username)
+        email = self.request.query_params.get('email')
+        if email:
+            qs = qs.filter(user__email__icontains=email)
 
         character = self.request.query_params.get('character')
         if character:

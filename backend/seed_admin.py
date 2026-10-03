@@ -21,7 +21,6 @@ ADMIN_USERNAME = 'admin'
 admin_user, created = User.objects.get_or_create(
     email=ADMIN_EMAIL,
     defaults={
-        'username': ADMIN_USERNAME,
         'role': 'admin',
         'is_staff': True,
         'is_superuser': True,
@@ -57,19 +56,19 @@ if researcher_count > 0:
         model_count = MLModel.objects.filter(trained_by=r).count()
 
         if pred_count + dataset_count + model_count == 0:
-            print(f"[DEL] Deleting researcher '{r.username}' (no data)")
+            print(f"[DEL] Deleting researcher '{r.email}' (no data)")
             r.delete()
         else:
             r.role = 'user'
             r.save()
-            print(f"[DOWN] Downgraded researcher '{r.username}' to user (has {pred_count} predictions)")
+            print(f"[DOWN] Downgraded researcher '{r.email}' to user (has {pred_count} predictions)")
 else:
     print("[OK] No researcher users to clean up")
 
 # -- 3. Summary --
 print(f"\n--- Current users ---")
-for u in User.objects.all().order_by('role', 'username'):
-    print(f"   {u.role:6s} | {u.username:20s} | {u.email}")
+for u in User.objects.all().order_by('role', 'email'):
+    print(f"   {u.role:6s} | {u.email}")
 
 print(f"\n[DONE] Admin can now login with:")
 print(f"   Email:    {ADMIN_EMAIL}")
