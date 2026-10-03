@@ -2,8 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { authAPI, recognitionAPI, analyticsAPI } from '../services/api';
 import api from '../services/api';
 import {
-  Users, Shield, Trash2, Plus, Edit3, X, Check, Eye, Search,
-  Clock, BarChart3, ChevronLeft, ChevronRight, UserPlus, RefreshCw,
+  Users, Shield, Trash2, Plus, Edit3, X, Check, Search,
+  Clock, BarChart3, ChevronRight, UserPlus, RefreshCw,
   Activity, Zap, TrendingUp, AlertCircle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
