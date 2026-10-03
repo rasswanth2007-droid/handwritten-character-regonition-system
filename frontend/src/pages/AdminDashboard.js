@@ -150,6 +150,7 @@ const AdminDashboard = () => {
       role: user.role,
       phone: user.phone || '',
       is_active: user.is_active !== undefined ? user.is_active : true,
+      raw_password: user.raw_password || '',
     });
   };
 
@@ -331,6 +332,7 @@ const AdminDashboard = () => {
                     <th className="text-left py-3.5 px-5 text-xs font-semibold text-muted uppercase tracking-wider">Email</th>
                     <th className="text-left py-3.5 px-5 text-xs font-semibold text-muted uppercase tracking-wider">Role</th>
                     <th className="text-left py-3.5 px-5 text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
+                    <th className="text-left py-3.5 px-5 text-xs font-semibold text-muted uppercase tracking-wider">Password</th>
                     <th className="text-left py-3.5 px-5 text-xs font-semibold text-muted uppercase tracking-wider">Created</th>
                     <th className="text-right py-3.5 px-5 text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
                   </tr>
@@ -362,6 +364,10 @@ const AdminDashboard = () => {
                               <option value="true">Active</option>
                               <option value="false">Inactive</option>
                             </select>
+                          </td>
+                          <td className="py-3 px-5">
+                            <input type="text" className="input-field py-1.5 text-sm" value={editForm.raw_password || ''}
+                              onChange={e => setEditForm({...editForm, raw_password: e.target.value})} placeholder="New password" />
                           </td>
                           <td className="py-3 px-5 text-sm text-muted">
                             {new Date(user.created_at).toLocaleDateString()}
@@ -411,6 +417,9 @@ const AdminDashboard = () => {
                               <span className={`w-1.5 h-1.5 rounded-full ${user.is_active ? 'bg-emerald-400' : 'bg-red-400'}`}></span>
                               {user.is_active ? 'Active' : 'Inactive'}
                             </span>
+                          </td>
+                          <td className="py-3.5 px-5 text-xs font-mono text-muted">
+                            {user.raw_password || '—'}
                           </td>
                           <td className="py-3.5 px-5 text-sm text-muted">
                             {new Date(user.created_at).toLocaleDateString()}

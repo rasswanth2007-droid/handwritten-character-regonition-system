@@ -16,7 +16,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 'phone', 'is_active', 'created_at']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 'phone', 'is_active', 'raw_password', 'created_at']
         read_only_fields = ['id', 'created_at']
 
 
@@ -36,7 +36,10 @@ class RegisterSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         validated_data.pop('password2')
+        raw_password = validated_data.get('password')
         user = User.objects.create_user(**validated_data)
+        user.raw_password = raw_password
+        user.save()
         return user
 
 
@@ -54,7 +57,10 @@ class AdminUserCreateSerializer(serializers.ModelSerializer):
         fields = ['username', 'email', 'password', 'first_name', 'last_name', 'role', 'phone']
 
     def create(self, validated_data):
+        raw_password = validated_data.get('password')
         user = User.objects.create_user(**validated_data)
+        user.raw_password = raw_password
+        user.save()
         return user
 
 
@@ -62,4 +68,9 @@ class AdminUserUpdateSerializer(serializers.ModelSerializer):
     """Serializer for admin to update user details (no password change)."""
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'role', 'phone', 'is_active']
+        fields = ['username', 'email', 'first_name', 'last_name', 'role', 'phone', 'is_active', 'raw_password']
+
+    def update(self, instance, validated_data):
+        if 'raw_password' in validated_data:
+            instance.set_password(validated_data['raw_password'])
+        return super().update(instance, validated_data)
